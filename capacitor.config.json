@@ -1,0 +1,9 @@
+{
+  "appId": "com.seudominio.lombarcheck",
+  "appName": "Lombar Check",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}

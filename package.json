@@ -1,0 +1,21 @@
+{
+  "name": "lombar-check",
+  "version": "1.0.0",
+  "description": "Lombar Check — avaliação fisioterapêutica de pacientes com dor lombar",
+  "private": true,
+  "scripts": {
+    "add:ios": "npx cap add ios",
+    "add:android": "npx cap add android",
+    "sync": "npx cap sync",
+    "open:ios": "npx cap open ios",
+    "open:android": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/ios": "^6.0.0",
+    "@capacitor/android": "^6.0.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Lombar Check — Avaliação Fisioterapêutica",
+  "short_name": "Lombar Check",
+  "description": "Avaliação completa de pacientes com dor lombar para fisioterapeutas.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F6F8FA",
+  "theme_color": "#122A45",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
