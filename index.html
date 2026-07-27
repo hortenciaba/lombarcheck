@@ -521,8 +521,8 @@ function blankState(){
    4. Cole a "Project URL" e a "anon public key" (em Project Settings > API) abaixo
    Enquanto os campos abaixo estiverem vazios, o app funciona em modo local/demonstração,
    sem login, salvando apenas neste navegador. */
-const SUPABASE_URL = '';
-const SUPABASE_ANON_KEY = '';
+const SUPABASE_URL = 'https://rbeusjmncembqviecyac.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_7rpRgI5nafYF5kvu1tVYLw_Oh87F5Dl';
 const supa = (SUPABASE_URL && SUPABASE_ANON_KEY && typeof window.supabase !== 'undefined')
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
