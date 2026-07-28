@@ -275,28 +275,69 @@
   .progress-mini{font-size:11.5px;color:var(--muted);font-weight:700;font-family:'IBM Plex Mono',monospace;}
 
 
-  /* Auth screen */
-  .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
-  .auth-card{
-    width:400px;max-width:100%;background:var(--white);border:1px solid var(--border);
-    border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 30px 26px;
+  /* Auth screen — tela cheia, dividida em painel de marca + formulário */
+  .auth-wrap{min-height:100vh;display:flex;width:100%;}
+  .auth-brand-panel{
+    flex:1.1;background:linear-gradient(155deg,#1B4066,#2E6DA4 65%,#4C8BC2);
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:56px 60px;color:#fff;position:relative;overflow:hidden;min-height:100vh;
   }
-  .auth-tabs{display:flex;background:var(--gray-bg);border-radius:10px;padding:4px;margin-bottom:20px;}
+  .auth-brand-panel::before{
+    content:'';position:absolute;width:520px;height:520px;border-radius:50%;
+    background:rgba(255,255,255,.06);top:-120px;right:-160px;
+  }
+  .auth-brand-panel::after{
+    content:'';position:absolute;width:360px;height:360px;border-radius:50%;
+    background:rgba(255,255,255,.05);bottom:-100px;left:-100px;
+  }
+  .auth-brand-top{display:flex;align-items:center;gap:12px;position:relative;z-index:1;}
+  .auth-brand-top .brand-mark{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.14);}
+  .auth-brand-top .brand-mark svg{width:24px;height:24px;}
+  .auth-brand-top .brand-name{font-size:19px;color:#fff;}
+  .auth-brand-top .brand-sub{color:rgba(255,255,255,.65);}
+  .auth-brand-mid{position:relative;z-index:1;max-width:440px;}
+  .auth-brand-mid h2{font-size:32px;line-height:1.25;font-weight:800;margin:0 0 16px;letter-spacing:-.01em;}
+  .auth-brand-mid p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.78);margin:0;}
+  .auth-brand-features{list-style:none;padding:0;margin:28px 0 0;display:flex;flex-direction:column;gap:14px;}
+  .auth-brand-features li{display:flex;align-items:center;gap:12px;font-size:14px;color:rgba(255,255,255,.9);}
+  .auth-brand-features .dot{
+    width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.14);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:13px;
+  }
+  .auth-brand-foot{font-size:12px;color:rgba(255,255,255,.5);position:relative;z-index:1;}
+
+  .auth-form-panel{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    padding:40px;background:var(--gray-bg);min-height:100vh;
+  }
+  .auth-card{
+    width:100%;max-width:420px;background:var(--white);border:1px solid var(--border);
+    border-radius:18px;box-shadow:var(--shadow);padding:44px 40px 36px;
+  }
+  .auth-card .brand{display:none;}
+  .auth-tabs{display:flex;background:var(--gray-bg);border-radius:10px;padding:4px;margin-bottom:24px;}
   .auth-tab{
-    flex:1;padding:9px 0;border:none;background:transparent;border-radius:8px;
-    font-weight:700;font-size:13px;color:var(--muted);cursor:pointer;
+    flex:1;padding:10px 0;border:none;background:transparent;border-radius:8px;
+    font-weight:700;font-size:13.5px;color:var(--muted);cursor:pointer;
   }
   .auth-tab.active{background:var(--white);color:var(--blue-dark);box-shadow:var(--shadow);}
   .auth-error{
     background:var(--red-bg);color:var(--red);border-radius:8px;padding:10px 12px;
     font-size:12.5px;font-weight:600;margin-bottom:10px;line-height:1.5;
   }
+  .auth-title{font-size:22px;font-weight:800;color:var(--blue-dark);margin:0 0 6px;letter-spacing:-.01em;}
+  .auth-subtitle{font-size:13.5px;color:var(--muted);margin:0 0 26px;}
   .user-chip{
     display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-weight:600;
   }
   .user-chip button{
     border:none;background:transparent;color:var(--blue);font-weight:700;cursor:pointer;
     text-decoration:underline;font-size:12px;padding:0;
+  }
+  @media(max-width:900px){
+    .auth-brand-panel{display:none;}
+    .auth-form-panel{padding:24px;}
+    .auth-card{padding:32px 26px 28px;}
   }
 
   /* step warning dot */
@@ -673,7 +714,15 @@ let saveStatus = 'idle'; // 'idle' | 'saving' | 'saved'
 let saveTimer = null;
 let quickJumpOpen = false;
 
-function genId(){ return 'p_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8); }
+function genId(){
+  // Precisa ser um UUID válido de verdade — a coluna "id" no Supabase é do tipo uuid,
+  // e um ID fora desse formato faz o salvamento falhar silenciosamente.
+  if(typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+    const r = Math.random()*16|0, v = c==='x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
+}
 
 function newPatientState(){
   const s = blankState();
@@ -713,10 +762,11 @@ async function savePatient(id, data){
       id, user_id: authUser.id, nome: data.paciente.nome || 'Paciente sem nome',
       data, updated_at: new Date().toISOString(),
     });
-    if(error) console.error(error);
-    return;
+    if(error){ console.error(error); return false; }
+    return true;
   }
   await Storage.set('pt_'+id, data);
+  return true;
 }
 async function deletePatientData(id){
   if(usingCloudBackend()){
@@ -743,6 +793,11 @@ function forceSaveNow(){
   clearTimeout(saveTimer);
   persistCurrentPatient();
 }
+async function forceSaveNowAndWait(){
+  if(appView!=='form' || !state._id) return;
+  clearTimeout(saveTimer);
+  await persistCurrentPatient();
+}
 // Garante que o que foi digitado não se perca ao trocar de aba, minimizar
 // o app ou fechar o navegador — não espera o pequeno atraso do autosave normal.
 document.addEventListener('visibilitychange', ()=>{
@@ -752,7 +807,13 @@ window.addEventListener('pagehide', forceSaveNow);
 
 async function persistCurrentPatient(){
   if(!state._id) return;
-  await savePatient(state._id, state);
+  const ok = await savePatient(state._id, state);
+  if(!ok){
+    saveStatus = 'error';
+    updateSaveIndicator();
+    showErrorBanner('Não foi possível salvar esta avaliação no servidor.', '— clique em "Salvar" novamente ou verifique sua conexão com a internet.');
+    return;
+  }
   let idx = await loadIndex();
   const meta = {
     id: state._id,
@@ -773,6 +834,7 @@ function updateSaveIndicator(){
   if(!el) return;
   if(saveStatus==='saving'){ el.textContent = 'Salvando…'; el.style.color = 'var(--muted)'; }
   else if(saveStatus==='saved'){ el.textContent = 'Salvo ✓'; el.style.color = 'var(--green)'; }
+  else if(saveStatus==='error'){ el.textContent = '⚠ Falha ao salvar — tente de novo'; el.style.color = 'var(--red)'; }
 }
 
 async function openPatient(id){
@@ -1164,7 +1226,10 @@ function render(){
       </div>
       <div class="content" id="content"></div>
       <div class="nav-footer">
-        <button class="btn" id="btn-prev" ${state.stepIndex===0?'disabled':''}>← Voltar</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" id="btn-prev" ${state.stepIndex===0?'disabled':''}>← Voltar</button>
+          <button class="btn" id="btn-save-step">💾 Salvar</button>
+        </div>
         <span class="progress-mini">${state.stepIndex+1} / ${STEPS.length}</span>
         <button class="btn btn-primary" id="btn-next" ${state.stepIndex===STEPS.length-1?'disabled':''}>Continuar →</button>
       </div>
@@ -1236,26 +1301,49 @@ function renderAuthScreen(){
       </form>`;
   }
 
+  const titles = {
+    login: ['Bem-vindo de volta', 'Entre com seu e-mail e senha para acessar seus pacientes.'],
+    signup: ['Criar sua conta', 'Leva menos de um minuto — seus pacientes ficam protegidos e isolados por conta.'],
+    forgot: ['Redefinir senha', 'Vamos te enviar um link para escolher uma nova senha.'],
+    reset: ['Escolha uma nova senha', 'Sua conta ficará protegida com a nova senha a partir de agora.'],
+  }[authMode];
+
   app.innerHTML = `
     <div class="auth-wrap">
-      <div class="auth-card">
-        <div class="brand" style="padding:0 0 22px;border-bottom:none;justify-content:center;">
+      <div class="auth-brand-panel">
+        <div class="auth-brand-top">
           <div class="brand-mark">${iconShield()}</div>
           <div>
             <div class="brand-name">Lombar Check</div>
             <div class="brand-sub">Avaliação fisioterapêutica</div>
           </div>
         </div>
-        ${tabsHtml}
-        ${formHtml}
-        ${!supa ? `
-          <div class="disclaimer" style="margin-top:18px;">
-            Backend ainda não configurado — esta tela é apenas uma prévia visual. Preencha SUPABASE_URL e SUPABASE_ANON_KEY no início do script para ativar login e sincronização real.
-          </div>
-        ` : ''}
-        <p style="text-align:center;font-size:11.5px;color:var(--muted);margin-top:18px;">
-          Ao continuar, você concorda com nossa <a href="privacidade.html" target="_blank" style="color:var(--blue);">Política de Privacidade e Termos de Uso</a>.
-        </p>
+        <div class="auth-brand-mid">
+          <h2>Avaliações completas de dor lombar, organizadas num só lugar.</h2>
+          <p>Anamnese, triagem de bandeiras vermelhas e amarelas, exame físico e neurológico, testes especiais e questionários padronizados — tudo num fluxo guiado, salvo automaticamente.</p>
+          <ul class="auth-brand-features">
+            <li><span class="dot">🔒</span> Dados isolados e protegidos por conta</li>
+            <li><span class="dot">⚡</span> Salvamento automático a cada campo</li>
+            <li><span class="dot">📋</span> Questionários com pontuação automática</li>
+          </ul>
+        </div>
+        <div class="auth-brand-foot">© Lombar Check — ferramenta de apoio ao raciocínio clínico do fisioterapeuta.</div>
+      </div>
+      <div class="auth-form-panel">
+        <div class="auth-card">
+          <h1 class="auth-title">${titles[0]}</h1>
+          <p class="auth-subtitle">${titles[1]}</p>
+          ${tabsHtml}
+          ${formHtml}
+          ${!supa ? `
+            <div class="disclaimer" style="margin-top:18px;">
+              Backend ainda não configurado — esta tela é apenas uma prévia visual. Preencha SUPABASE_URL e SUPABASE_ANON_KEY no início do script para ativar login e sincronização real.
+            </div>
+          ` : ''}
+          <p style="text-align:center;font-size:11.5px;color:var(--muted);margin-top:22px;">
+            Ao continuar, você concorda com nossa <a href="privacidade.html" target="_blank" style="color:var(--blue);">Política de Privacidade e Termos de Uso</a>.
+          </p>
+        </div>
       </div>
     </div>
   `;
@@ -2623,6 +2711,14 @@ function bindEvents(){
   if(prev) prev.addEventListener('click', ()=>{ if(state.stepIndex>0){state.stepIndex--; render(); window.scrollTo(0,0);} });
   if(next) next.addEventListener('click', ()=>{ if(state.stepIndex<STEPS.length-1){state.stepIndex++; render(); window.scrollTo(0,0);} });
   const toDashBtn = document.getElementById('btn-to-dashboard');
+  const saveStepBtn = document.getElementById('btn-save-step');
+  if(saveStepBtn) saveStepBtn.addEventListener('click', async ()=>{
+    saveStepBtn.disabled = true;
+    saveStepBtn.textContent = 'Salvando...';
+    await forceSaveNowAndWait();
+    saveStepBtn.textContent = saveStatus==='error' ? '⚠ Falhou, tentar de novo' : '✓ Salvo!';
+    setTimeout(()=>{ saveStepBtn.textContent = '💾 Salvar'; saveStepBtn.disabled = false; }, 1500);
+  });
   if(toDashBtn) toDashBtn.addEventListener('click', goToDashboard);
   const brandHome = document.getElementById('brand-home');
   if(brandHome) brandHome.addEventListener('click', goToDashboard);
@@ -2957,7 +3053,7 @@ async function boot(){
    guarda um histórico) — é só uma rede de segurança para o usuário final.
    Para monitoramento de verdade, uma opção comum é o Sentry (tem plano
    gratuito) — avise se quiser que eu prepare essa integração. */
-function showErrorBanner(message){
+function showErrorBanner(message, suffix){
   let el = document.getElementById('global-error-banner');
   if(!el){
     el = document.createElement('div');
@@ -2965,7 +3061,7 @@ function showErrorBanner(message){
     el.style.cssText = 'position:fixed;bottom:16px;left:16px;right:16px;max-width:480px;margin:0 auto;background:#FDECEA;border:1px solid #F0C4BF;color:#C0392B;padding:14px 16px;border-radius:12px;font-family:Manrope,sans-serif;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.15);';
     document.body.appendChild(el);
   }
-  el.textContent = message + ' — seus dados preenchidos até agora foram salvos automaticamente. Tente recarregar a página.';
+  el.textContent = message + ' ' + (suffix !== undefined ? suffix : '— seus dados preenchidos até agora foram salvos automaticamente. Tente recarregar a página.');
 }
 window.addEventListener('error', (e)=>{
   console.error('Erro não tratado:', e.error || e.message);
