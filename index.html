@@ -6,8 +6,9 @@
 <title>Lombar Check — Avaliação de Pacientes</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#122A45">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
-<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png?v=2">
+<link rel="icon" href="icons/favicon-32.png?v=2" sizes="32x32">
+<link rel="icon" href="icons/favicon-16.png?v=2" sizes="16x16">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -304,9 +305,12 @@
   /* Dashboard */
   .dash-wrap{max-width:980px;margin:0 auto;padding:30px 34px 60px;width:100%;}
   .dash-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;}
-  .dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
-  @media(max-width:720px){.dash-stats{grid-template-columns:1fr;}}
+  .dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+  @media(max-width:900px){.dash-stats{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:480px){.dash-stats{grid-template-columns:1fr;}}
   .stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);}
+  .stat-card-warn{border-color:#F0C4BF;background:var(--red-bg);}
+  .stat-card-warn .stat-num{color:var(--red);}
   .stat-num{font-size:22px;font-weight:800;color:var(--blue-dark);letter-spacing:-.01em;}
   .stat-label{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px;}
   .dash-search{
@@ -328,6 +332,15 @@
   .patient-card-body{flex:1;min-width:0;}
   .patient-card-name{font-weight:700;font-size:13.7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .patient-card-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+  .patient-card-badge{
+    display:inline-block;margin-top:5px;font-size:10.5px;font-weight:700;color:var(--red);
+    background:var(--red-bg);padding:2px 8px;border-radius:20px;
+  }
+  .patient-card-dup{
+    background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:15px;
+    padding:4px 7px;border-radius:6px;flex-shrink:0;
+  }
+  .patient-card-dup:hover{background:var(--blue-light);color:var(--blue-dark);}
   .patient-card-del{
     background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:14px;
     padding:4px 7px;border-radius:6px;flex-shrink:0;
@@ -392,6 +405,30 @@
   .ai-loading{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px;font-weight:600;}
   .spin{width:15px;height:15px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* Mobile / tablet: sidebar vira uma barra de etapas horizontal e rolável no topo */
+  @media(max-width:780px){
+    #app{flex-direction:column;}
+    .sidebar{
+      width:100%;height:auto;position:sticky;top:0;z-index:20;
+      flex-direction:row;align-items:center;overflow-x:auto;overflow-y:hidden;
+      border-right:none;border-bottom:1px solid var(--border);
+    }
+    .brand{border-bottom:none;border-right:1px solid var(--border);flex-shrink:0;padding:14px 14px;}
+    .brand-sub{display:none;}
+    .sidebar > div[style*="padding:12px"]{padding:0 8px !important;flex-shrink:0;}
+    .steps{display:flex;padding:8px;margin:0;flex-shrink:0;}
+    .step-item{white-space:nowrap;margin-right:4px;margin-bottom:0;}
+    .step-item span:not(.step-num):not(.step-warn-dot){display:none;}
+    .sidebar-footer{display:none;}
+    .topbar{padding:14px 18px;flex-wrap:wrap;gap:10px;}
+    .content{padding:20px 18px 90px;}
+    .nav-footer{padding:12px 18px;}
+    .grid2,.grid3,.mob-grid{grid-template-columns:1fr;}
+    .dash-wrap{padding:20px 18px 60px;}
+    .dash-top{flex-wrap:wrap;gap:12px;}
+    .diagram-wrap{justify-content:flex-start;}
+  }
 
   @media print{
     .sidebar,.topbar,.nav-footer{display:none !important;}
@@ -536,10 +573,34 @@ async function authInit(){
   if(!supa) return null;
   const { data } = await supa.auth.getSession();
   authUser = data.session ? data.session.user : null;
-  supa.auth.onAuthStateChange((_event, session)=>{
+  supa.auth.onAuthStateChange((event, session)=>{
     authUser = session ? session.user : null;
+    if(event === 'PASSWORD_RECOVERY'){
+      authMode = 'reset';
+      appView = 'auth';
+      render();
+    }
   });
   return authUser;
+}
+
+async function authForgotPassword(email){
+  authError = ''; authBusy = true;
+  const { error } = await supa.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href.split('?')[0].split('#')[0],
+  });
+  authBusy = false;
+  if(error){ authError = error.message; return false; }
+  authError = 'Enviamos um link de redefinição de senha para o seu e-mail. Verifique também a caixa de spam.';
+  return true;
+}
+
+async function authUpdatePassword(newPassword){
+  authError = ''; authBusy = true;
+  const { error } = await supa.auth.updateUser({ password: newPassword });
+  authBusy = false;
+  if(error){ authError = error.message; return false; }
+  return true;
 }
 
 async function authSignUp(email, password, nomeCompleto){
@@ -674,8 +735,20 @@ function scheduleSave(){
   saveStatus = 'saving';
   updateSaveIndicator();
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(persistCurrentPatient, 700);
+  saveTimer = setTimeout(persistCurrentPatient, 400);
 }
+
+function forceSaveNow(){
+  if(appView!=='form' || !state._id) return;
+  clearTimeout(saveTimer);
+  persistCurrentPatient();
+}
+// Garante que o que foi digitado não se perca ao trocar de aba, minimizar
+// o app ou fechar o navegador — não espera o pequeno atraso do autosave normal.
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'hidden') forceSaveNow();
+});
+window.addEventListener('pagehide', forceSaveNow);
 
 async function persistCurrentPatient(){
   if(!state._id) return;
@@ -755,6 +828,27 @@ async function removePatient(id, evt){
   if(!confirm('Excluir permanentemente este paciente e toda a avaliação? Esta ação não pode ser desfeita.')) return;
   await deletePatientData(id);
   renderDashboard();
+}
+
+async function duplicatePatient(id, evt){
+  if(evt) evt.stopPropagation();
+  const original = await loadPatient(id);
+  if(!original){ alert('Não foi possível carregar esta avaliação para duplicar.'); return; }
+  const copy = JSON.parse(JSON.stringify(original));
+  copy._id = genId();
+  copy.paciente.nome = (copy.paciente.nome || 'Paciente') + ' (cópia)';
+  copy.paciente.data = '';
+  copy.evolucoes = []; // acompanhamentos são específicos de cada atendimento, não copiar
+  copy.stepIndex = 0;
+  state = copy;
+  appView = 'form';
+  await persistCurrentPatient();
+  render();
+  window.scrollTo(0,0);
+}
+
+function diasSemRetorno(updatedAtMs){
+  return Math.floor((Date.now() - updatedAtMs) / 86400000);
 }
 
 function exportPatientJSON(data){
@@ -1086,6 +1180,62 @@ function render(){
 function renderAuthScreen(){
   const app = document.getElementById('app');
   const isSignup = authMode==='signup';
+  const isForgot = authMode==='forgot';
+  const isReset = authMode==='reset';
+
+  const tabsHtml = (isForgot || isReset) ? '' : `
+    <div class="auth-tabs">
+      <button class="auth-tab ${!isSignup?'active':''}" id="tab-login">Entrar</button>
+      <button class="auth-tab ${isSignup?'active':''}" id="tab-signup">Criar conta</button>
+    </div>`;
+
+  let formHtml;
+  if(isReset){
+    formHtml = `
+      <p class="section-desc" style="margin-bottom:16px;">Escolha uma nova senha para sua conta.</p>
+      <form id="auth-form">
+        <label class="field"><span class="lbl">Nova senha</span>
+          <input type="password" id="auth-senha" required minlength="6" placeholder="Mínimo 6 caracteres">
+        </label>
+        ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ''}
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px;" ${authBusy?'disabled':''}>
+          ${authBusy ? 'Aguarde...' : 'Salvar nova senha'}
+        </button>
+      </form>`;
+  } else if(isForgot){
+    formHtml = `
+      <p class="section-desc" style="margin-bottom:16px;">Digite seu e-mail — enviaremos um link para redefinir sua senha.</p>
+      <form id="auth-form">
+        <label class="field"><span class="lbl">E-mail</span>
+          <input type="email" id="auth-email" required placeholder="voce@exemplo.com">
+        </label>
+        ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ''}
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px;" ${authBusy?'disabled':''}>
+          ${authBusy ? 'Aguarde...' : 'Enviar link de redefinição'}
+        </button>
+        <button type="button" class="btn btn-ghost" id="back-to-login" style="width:100%;justify-content:center;margin-top:8px;">← Voltar para o login</button>
+      </form>`;
+  } else {
+    formHtml = `
+      <form id="auth-form">
+        ${isSignup ? `
+          <label class="field"><span class="lbl">Nome completo</span>
+            <input type="text" id="auth-nome" required placeholder="Seu nome">
+          </label>` : ''}
+        <label class="field"><span class="lbl">E-mail</span>
+          <input type="email" id="auth-email" required placeholder="voce@exemplo.com">
+        </label>
+        <label class="field"><span class="lbl">Senha</span>
+          <input type="password" id="auth-senha" required minlength="6" placeholder="Mínimo 6 caracteres">
+        </label>
+        ${!isSignup ? `<button type="button" class="btn btn-ghost" id="link-forgot" style="padding:0;font-size:12px;color:var(--blue);text-decoration:underline;margin-bottom:14px;">Esqueci minha senha</button>` : ''}
+        ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ''}
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px;" ${authBusy?'disabled':''}>
+          ${authBusy ? 'Aguarde...' : (isSignup ? 'Criar conta' : 'Entrar')}
+        </button>
+      </form>`;
+  }
+
   app.innerHTML = `
     <div class="auth-wrap">
       <div class="auth-card">
@@ -1096,42 +1246,47 @@ function renderAuthScreen(){
             <div class="brand-sub">Avaliação fisioterapêutica</div>
           </div>
         </div>
-
-        <div class="auth-tabs">
-          <button class="auth-tab ${!isSignup?'active':''}" id="tab-login">Entrar</button>
-          <button class="auth-tab ${isSignup?'active':''}" id="tab-signup">Criar conta</button>
-        </div>
-
-        <form id="auth-form">
-          ${isSignup ? `
-            <label class="field"><span class="lbl">Nome completo</span>
-              <input type="text" id="auth-nome" required placeholder="Seu nome">
-            </label>` : ''}
-          <label class="field"><span class="lbl">E-mail</span>
-            <input type="email" id="auth-email" required placeholder="voce@exemplo.com">
-          </label>
-          <label class="field"><span class="lbl">Senha</span>
-            <input type="password" id="auth-senha" required minlength="6" placeholder="Mínimo 6 caracteres">
-          </label>
-          ${authError ? `<div class="auth-error">${esc(authError)}</div>` : ''}
-          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px;" ${authBusy?'disabled':''}>
-            ${authBusy ? 'Aguarde...' : (isSignup ? 'Criar conta' : 'Entrar')}
-          </button>
-        </form>
-
+        ${tabsHtml}
+        ${formHtml}
         ${!supa ? `
           <div class="disclaimer" style="margin-top:18px;">
             Backend ainda não configurado — esta tela é apenas uma prévia visual. Preencha SUPABASE_URL e SUPABASE_ANON_KEY no início do script para ativar login e sincronização real.
           </div>
         ` : ''}
+        <p style="text-align:center;font-size:11.5px;color:var(--muted);margin-top:18px;">
+          Ao continuar, você concorda com nossa <a href="privacidade.html" target="_blank" style="color:var(--blue);">Política de Privacidade e Termos de Uso</a>.
+        </p>
       </div>
     </div>
   `;
-  document.getElementById('tab-login').addEventListener('click', ()=>{ authMode='login'; authError=''; render(); });
-  document.getElementById('tab-signup').addEventListener('click', ()=>{ authMode='signup'; authError=''; render(); });
+
+  const tabLogin = document.getElementById('tab-login');
+  const tabSignup = document.getElementById('tab-signup');
+  if(tabLogin) tabLogin.addEventListener('click', ()=>{ authMode='login'; authError=''; render(); });
+  if(tabSignup) tabSignup.addEventListener('click', ()=>{ authMode='signup'; authError=''; render(); });
+  const linkForgot = document.getElementById('link-forgot');
+  if(linkForgot) linkForgot.addEventListener('click', ()=>{ authMode='forgot'; authError=''; render(); });
+  const backToLogin = document.getElementById('back-to-login');
+  if(backToLogin) backToLogin.addEventListener('click', ()=>{ authMode='login'; authError=''; render(); });
+
   document.getElementById('auth-form').addEventListener('submit', async (e)=>{
     e.preventDefault();
     if(!supa){ authError = 'Backend não configurado neste arquivo — veja o README.'; render(); return; }
+
+    if(isReset){
+      const senha = document.getElementById('auth-senha').value;
+      const ok = await authUpdatePassword(senha);
+      if(ok){ authMode='login'; authError=''; appView='dashboard'; }
+      render();
+      return;
+    }
+    if(isForgot){
+      const email = document.getElementById('auth-email').value.trim();
+      await authForgotPassword(email);
+      render();
+      return;
+    }
+
     const email = document.getElementById('auth-email').value.trim();
     const senha = document.getElementById('auth-senha').value;
     let ok;
@@ -1187,6 +1342,10 @@ async function renderDashboard(){
           <div class="stat-num">${patientsCache.filter(p=>p.updatedAt > Date.now()-7*86400000).length}</div>
           <div class="stat-label">Atualizados nos últimos 7 dias</div>
         </div>
+        <div class="stat-card ${patientsCache.filter(p=>diasSemRetorno(p.updatedAt)>=21).length>0 ? 'stat-card-warn':''}">
+          <div class="stat-num">${patientsCache.filter(p=>diasSemRetorno(p.updatedAt)>=21).length}</div>
+          <div class="stat-label">Sem retorno há 3+ semanas</div>
+        </div>
         <div class="stat-card">
           <div class="stat-num">${usingCloudBackend() ? 'Conta na nuvem' : (Storage.hasWindowStorage() ? 'Nuvem Claude' : 'Este navegador')}</div>
           <div class="stat-label">Onde os dados estão salvos</div>
@@ -1214,7 +1373,9 @@ async function renderDashboard(){
             <div class="patient-card-body">
               <div class="patient-card-name">${esc(p.nome)}</div>
               <div class="patient-card-meta">Atualizado em ${new Date(p.updatedAt).toLocaleDateString('pt-BR')} às ${new Date(p.updatedAt).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+              ${diasSemRetorno(p.updatedAt) >= 21 ? `<div class="patient-card-badge">Sem retorno há ${diasSemRetorno(p.updatedAt)} dias</div>` : ''}
             </div>
+            <button class="patient-card-dup" data-dup-patient="${p.id}" title="Duplicar como nova avaliação">⧉</button>
             <button class="patient-card-del" data-del-patient="${p.id}" title="Excluir paciente">✕</button>
           </div>
         `).join('')}
@@ -1235,6 +1396,9 @@ function bindDashboardEvents(){
   });
   document.querySelectorAll('[data-del-patient]').forEach(el=>{
     el.addEventListener('click', (e)=> removePatient(el.dataset.delPatient, e));
+  });
+  document.querySelectorAll('[data-dup-patient]').forEach(el=>{
+    el.addEventListener('click', (e)=> duplicatePatient(el.dataset.dupPatient, e));
   });
 
   const searchEl = document.getElementById('dash-search');
@@ -2780,6 +2944,31 @@ async function boot(){
     render();
   }
 }
+/* ============================= TRATAMENTO DE ERROS ============================= */
+/* Evita que um erro inesperado deixe a tela em branco sem explicação.
+   Isso NÃO é um serviço de monitoramento (não avisa você por e-mail nem
+   guarda um histórico) — é só uma rede de segurança para o usuário final.
+   Para monitoramento de verdade, uma opção comum é o Sentry (tem plano
+   gratuito) — avise se quiser que eu prepare essa integração. */
+function showErrorBanner(message){
+  let el = document.getElementById('global-error-banner');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'global-error-banner';
+    el.style.cssText = 'position:fixed;bottom:16px;left:16px;right:16px;max-width:480px;margin:0 auto;background:#FDECEA;border:1px solid #F0C4BF;color:#C0392B;padding:14px 16px;border-radius:12px;font-family:Manrope,sans-serif;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.15);';
+    document.body.appendChild(el);
+  }
+  el.textContent = message + ' — seus dados preenchidos até agora foram salvos automaticamente. Tente recarregar a página.';
+}
+window.addEventListener('error', (e)=>{
+  console.error('Erro não tratado:', e.error || e.message);
+  showErrorBanner('Algo deu errado nesta tela.');
+});
+window.addEventListener('unhandledrejection', (e)=>{
+  console.error('Falha em operação assíncrona:', e.reason);
+  showErrorBanner('Uma operação não pôde ser concluída.');
+});
+
 boot();
 
 if('serviceWorker' in navigator){
