@@ -1448,7 +1448,7 @@ function stepPaciente(){
       </div>
       <div class="grid3">
         ${field('paciente.nascimento','Data de nascimento',{type:'date'})}
-        <label class="field"><span class="lbl">Idade (calculada)</span><input type="text" disabled value="${idade}" style="background:var(--gray-bg);color:var(--muted)"></label>
+        <label class="field"><span class="lbl">Idade (calculada)</span><input type="text" id="idade-calculada" disabled value="${idade}" style="background:var(--gray-bg);color:var(--muted)"></label>
         ${field('paciente.cpf','CPF')}
       </div>
       <div class="grid2">
@@ -2648,7 +2648,14 @@ function bindEvents(){
 
   // generic text/textarea/date/select fields
   document.querySelectorAll('[data-path]').forEach(el=>{
-    const handler = ()=>{ setPath(state, el.dataset.path, el.value); syncSidebarChip(); };
+    const handler = ()=>{
+      setPath(state, el.dataset.path, el.value);
+      syncSidebarChip();
+      if(el.dataset.path === 'paciente.nascimento'){
+        const idadeEl = document.getElementById('idade-calculada');
+        if(idadeEl) idadeEl.value = calcAge(el.value);
+      }
+    };
     el.addEventListener('input', handler);
     if(el.tagName==='SELECT') el.addEventListener('change', handler);
   });
