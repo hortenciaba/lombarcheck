@@ -5,37 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lombar Check — Avaliação de Pacientes</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#122A45">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png?v=2">
-<link rel="icon" href="icons/favicon-32.png?v=2" sizes="32x32">
-<link rel="icon" href="icons/favicon-16.png?v=2" sizes="16x16">
+<meta name="theme-color" content="#094B61">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png?v=3">
+<link rel="icon" href="icons/favicon-32.png?v=3" sizes="32x32">
+<link rel="icon" href="icons/favicon-16.png?v=3" sizes="16x16">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
-    --blue-dark:#122A45;
-    --blue:#2E6DA4;
-    --blue-mid:#4C8BC2;
-    --blue-light:#E4EEF7;
-    --gray-bg:#F6F8FA;
+    --blue-dark:#094B61;
+    --blue:#0E6981;
+    --blue-mid:#4A93A6;
+    --blue-light:#E4F1F3;
+    --coral:#D67671;
+    --coral-dark:#B85951;
+    --coral-bg:#FBEAE8;
+    --gray-bg:#F7F9FA;
     --white:#FFFFFF;
-    --text:#16202B;
-    --muted:#65758A;
-    --border:#E1E7ED;
+    --text:#122B33;
+    --muted:#5F7981;
+    --border:#DFE7E9;
     --red:#C0392B;
     --red-bg:#FDECEA;
     --amber:#B8860B;
     --amber-bg:#FBF3DF;
     --green:#2E7D5B;
     --green-bg:#E6F4EC;
-    --radius:14px;
-    --shadow: 0 1px 2px rgba(18,42,69,.04), 0 8px 24px -12px rgba(18,42,69,.12);
+    --radius:20px;
+    --shadow: 0 1px 2px rgba(9,75,97,.05), 0 10px 28px -14px rgba(9,75,97,.18);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    font-family:'Manrope',-apple-system,BlinkMacSystemFont,sans-serif;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
     background:var(--gray-bg);
     color:var(--text);
     -webkit-font-smoothing:antialiased;
@@ -99,7 +102,7 @@
   .topbar-actions{display:flex;gap:8px;}
   .btn{
     border:1px solid var(--border);background:var(--white);color:var(--text);
-    padding:8px 14px;border-radius:9px;font-size:13px;font-weight:700;
+    padding:9px 16px;border-radius:12px;font-size:13px;font-weight:700;
     cursor:pointer;transition:all .12s ease;display:inline-flex;align-items:center;gap:6px;
   }
   .btn:hover{border-color:var(--blue-mid);color:var(--blue-dark);}
@@ -128,8 +131,8 @@
   label.field{display:block;margin-bottom:14px;}
   label.field span.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:5px;}
   label.field span.hint{display:block;font-size:11.5px;color:var(--muted);margin-top:4px;font-weight:500;}
-  input[type=text],input[type=date],input[type=email],input[type=tel],input[type=number],select,textarea{
-    width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;
+  input[type=text],input[type=date],input[type=email],input[type=password],input[type=tel],input[type=number],select,textarea{
+    width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:11px;
     font-family:inherit;font-size:13.5px;color:var(--text);background:var(--white);
     transition:border-color .12s ease;
   }
@@ -278,7 +281,7 @@
   /* Auth screen — tela cheia, dividida em painel de marca + formulário */
   .auth-wrap{min-height:100vh;display:flex;width:100%;}
   .auth-brand-panel{
-    flex:1.1;background:linear-gradient(155deg,#1B4066,#2E6DA4 65%,#4C8BC2);
+    flex:1.1;background:linear-gradient(155deg,#063846,#094B61 60%,#3E8CA1);
     display:flex;flex-direction:column;justify-content:space-between;
     padding:56px 60px;color:#fff;position:relative;overflow:hidden;min-height:100vh;
   }
@@ -344,14 +347,67 @@
   .step-warn-dot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0;}
 
   /* Dashboard */
-  .dash-wrap{max-width:980px;margin:0 auto;padding:30px 34px 60px;width:100%;}
+  .dash-wrap{max-width:980px;margin:0 auto;padding:30px 34px 100px;width:100%;}
   .dash-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;}
+
+  /* Hero header */
+  .dash-hero{
+    background:linear-gradient(155deg,#063846,#094B61 60%,#3E8CA1);
+    border-radius:24px;padding:28px 30px 32px;color:#fff;margin-bottom:20px;
+    box-shadow:var(--shadow);
+  }
+  .dash-hero-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+  .dash-hero-title{font-size:24px;font-weight:800;margin:0 0 4px;letter-spacing:-.01em;}
+  .dash-hero-sub{font-size:13.5px;color:rgba(255,255,255,.75);margin:0 0 20px;}
+  .dash-hero-search{
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:14px;
+    padding:12px 16px;display:flex;align-items:center;gap:10px;
+  }
+  .dash-hero-search input{
+    background:transparent;border:none;outline:none;color:#fff;font-size:13.5px;width:100%;
+    font-family:inherit;
+  }
+  .dash-hero-search input::placeholder{color:rgba(255,255,255,.6);}
+
+  /* Quick action card */
+  .dash-quick-card{
+    background:var(--white);border:1px solid var(--border);border-radius:20px;padding:24px;
+    display:flex;align-items:center;gap:20px;margin-bottom:20px;box-shadow:var(--shadow);
+  }
+  .dash-quick-illustration{width:88px;flex-shrink:0;}
+  .dash-quick-illustration svg{width:100%;height:auto;}
+  .dash-quick-body h3{margin:0 0 4px;font-size:16px;color:var(--blue-dark);}
+  .dash-quick-body p{margin:0 0 14px;font-size:13px;color:var(--muted);}
+
+  /* Chip row (stats compactas) */
+  .dash-chip-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px;}
+  .dash-chip{
+    background:var(--white);border:1px solid var(--border);border-radius:20px;padding:8px 16px;
+    font-size:12.5px;color:var(--muted);font-weight:600;
+  }
+  .dash-chip b{color:var(--blue-dark);font-weight:800;}
+  .dash-chip-warn{background:var(--coral-bg);border-color:#EFC9C6;}
+  .dash-chip-warn b{color:var(--coral-dark);}
+
+  .dash-section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .dash-section-head h3{margin:0;font-size:15px;color:var(--blue-dark);}
+
+  /* Floating action button */
+  .dash-fab{
+    position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;
+    background:var(--blue-dark);color:#fff;border:none;font-size:26px;cursor:pointer;
+    box-shadow:0 10px 24px -6px rgba(9,75,97,.5);display:flex;align-items:center;justify-content:center;
+    z-index:50;transition:transform .12s ease;
+  }
+  .dash-fab:hover{transform:scale(1.06);background:var(--coral);box-shadow:0 10px 24px -6px rgba(214,118,113,.55);}
+  .patient-card-chevron{color:var(--muted);font-size:20px;flex-shrink:0;}
+
   .dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
   @media(max-width:900px){.dash-stats{grid-template-columns:repeat(2,1fr);}}
   @media(max-width:480px){.dash-stats{grid-template-columns:1fr;}}
   .stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);}
-  .stat-card-warn{border-color:#F0C4BF;background:var(--red-bg);}
-  .stat-card-warn .stat-num{color:var(--red);}
+  .stat-card-warn{border-color:#EFC9C6;background:var(--coral-bg);}
+  .stat-card-warn .stat-num{color:var(--coral-dark);}
   .stat-num{font-size:22px;font-weight:800;color:var(--blue-dark);letter-spacing:-.01em;}
   .stat-label{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px;}
   .dash-search{
@@ -361,21 +417,21 @@
   .dash-search:focus{outline:none;border-color:var(--blue-mid);box-shadow:0 0 0 3px var(--blue-light);}
   .patient-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
   .patient-card{
-    background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;
+    background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px;
     display:flex;align-items:center;gap:12px;cursor:pointer;position:relative;box-shadow:var(--shadow);
     transition:border-color .12s ease;
   }
   .patient-card:hover{border-color:var(--blue-mid);}
   .patient-card-avatar{
-    width:40px;height:40px;border-radius:10px;background:var(--blue-light);color:var(--blue-dark);
+    width:42px;height:42px;border-radius:50%;background:var(--blue-light);color:var(--blue-dark);
     display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0;
   }
   .patient-card-body{flex:1;min-width:0;}
   .patient-card-name{font-weight:700;font-size:13.7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .patient-card-meta{font-size:11px;color:var(--muted);margin-top:2px;}
   .patient-card-badge{
-    display:inline-block;margin-top:5px;font-size:10.5px;font-weight:700;color:var(--red);
-    background:var(--red-bg);padding:2px 8px;border-radius:20px;
+    display:inline-block;margin-top:5px;font-size:10.5px;font-weight:700;color:var(--coral-dark);
+    background:var(--coral-bg);padding:2px 8px;border-radius:20px;
   }
   .patient-card-dup{
     background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:15px;
@@ -417,11 +473,11 @@
   .rm-item:last-child{border-bottom:none;}
   .rm-item input{margin-top:3px;width:16px;height:16px;accent-color:var(--blue);flex-shrink:0;}
   .score-box{
-    display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:11px;background:var(--blue-light);
+    display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:var(--coral-bg);
     margin-top:14px;
   }
-  .score-num{font-size:24px;font-weight:800;color:var(--blue-dark);font-family:'IBM Plex Mono',monospace;}
-  .score-label{font-size:12.5px;color:var(--blue-dark);font-weight:700;line-height:1.4;}
+  .score-num{font-size:24px;font-weight:800;color:var(--coral-dark);font-family:'IBM Plex Mono',monospace;}
+  .score-label{font-size:12.5px;color:var(--coral-dark);font-weight:700;line-height:1.4;}
   .vas-wrap{padding:8px 4px;}
   .vas-wrap input[type=range]{width:100%;accent-color:var(--blue);}
   .vas-scale-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:700;margin-top:4px;}
@@ -434,13 +490,13 @@
   /* Hip vs lumbar smart alert */
   .insight-banner{
     border-radius:11px;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.55;
-    background:var(--blue-light);color:var(--blue-dark);border:1px solid #C9DDEF;
+    background:var(--blue-light);color:var(--blue-dark);border:1px solid #C3DEE3;
   }
   .insight-banner b{display:block;font-size:13.5px;margin-bottom:4px;}
 
   /* AI interpretation */
   .ai-panel{
-    background:linear-gradient(180deg,#F7FAFD,var(--white));border:1px solid var(--border);border-radius:12px;
+    background:linear-gradient(180deg,#F2F9FA,var(--white));border:1px solid var(--border);border-radius:12px;
     padding:18px 20px;margin-top:6px;font-size:13.3px;line-height:1.65;white-space:pre-wrap;
   }
   .ai-loading{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px;font-weight:600;}
@@ -1160,6 +1216,30 @@ function iconShield(){
   return `<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 5-3.2 8.5-7 9.5C8.2 20.5 5 17 5 12V6l7-3z" fill="white" fill-opacity="0.15"/><path d="M12 3l7 3v6c0 5-3.2 8.5-7 9.5C8.2 20.5 5 17 5 12V6l7-3z" stroke="white" stroke-width="1.4"/><path d="M9 12l2 2 4-4" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
 
+function iconSpineDecor(){
+  return `<svg viewBox="0 0 200 260" fill="none">
+    <defs>
+      <radialGradient id="lombarGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="var(--coral)" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="var(--coral)" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <circle cx="100" cy="140" r="34" fill="url(#lombarGlow)"/>
+    <g fill="none" stroke="var(--border)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+      <circle cx="100" cy="28" r="20"/>
+      <path d="
+        M88 47 C84 50 80 54 79 60 L60 78 C55 83 52 90 52 98 L52 118
+        C52 128 55 136 60 142 L66 150 L60 210
+        C58 222 58 234 62 246 L78 246 L92 168 L100 168 L108 168 L122 246 L138 246
+        C142 234 142 222 140 210 L134 150 L140 142
+        C145 136 148 128 148 118 L148 98 C148 90 145 83 140 78 L121 60
+        C120 54 116 50 112 47 C108 50 100 52 100 52 C100 52 92 50 88 47 Z"/>
+    </g>
+    <ellipse cx="100" cy="140" rx="19" ry="24" fill="var(--coral)" fill-opacity="0.16" stroke="var(--coral)" stroke-width="1.6" stroke-dasharray="3 3"/>
+    <circle cx="100" cy="140" r="6" fill="var(--coral)"/>
+  </svg>`;
+}
+
 function redFlagAlertActive(){
   const v = state.vermelhas;
   for(const grp of Object.values(v)){
@@ -1400,44 +1480,45 @@ async function renderDashboard(){
   const app = document.getElementById('app');
   const term = dashboardSearch.trim().toLowerCase();
   const filtered = term ? patientsCache.filter(p=>(p.nome||'').toLowerCase().includes(term)) : patientsCache;
+  const primeiroNome = authUser ? (authUser.user_metadata?.nome || authUser.email.split('@')[0]) : 'Fisioterapeuta';
+  const semRetornoCount = patientsCache.filter(p=>diasSemRetorno(p.updatedAt)>=21).length;
 
   app.innerHTML = `
     <div class="dash-wrap">
-      <div class="dash-top">
-        <div class="brand">
-          <div class="brand-mark">${iconShield()}</div>
-          <div>
-            <div class="brand-name">Lombar Check</div>
-            <div class="brand-sub">Avaliação fisioterapêutica</div>
+      <div class="dash-hero">
+        <div class="dash-hero-top">
+          <div class="auth-brand-top" style="gap:10px;">
+            <div class="brand-mark" style="width:38px;height:38px;">${iconShield()}</div>
+            <div>
+              <div class="brand-name" style="font-size:15px;">Lombar Check</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            ${authUser ? `<div class="user-chip" style="color:rgba(255,255,255,.85);">${esc(authUser.email)} <button id="btn-logout" style="color:#fff;">Sair</button></div>` : ''}
           </div>
         </div>
-        <div style="display:flex;gap:14px;align-items:center;">
-          ${authUser ? `<div class="user-chip">${esc(authUser.email)} <button id="btn-logout">Sair</button></div>` : ''}
-          <label class="btn" style="cursor:pointer;">
-            Importar JSON
-            <input type="file" id="import-file" accept="application/json" style="display:none;">
-          </label>
-          <button class="btn btn-primary" id="btn-new-patient">+ Novo paciente</button>
+        <h1 class="dash-hero-title">Olá, ${esc(primeiroNome)} 👋</h1>
+        <p class="dash-hero-sub">Bem-vindo(a) de volta ao Lombar Check</p>
+        <div class="dash-hero-search">
+          <span>🔍</span>
+          <input type="text" id="dash-search" placeholder="Buscar paciente por nome..." value="${esc(dashboardSearch)}">
         </div>
       </div>
 
-      <div class="dash-stats">
-        <div class="stat-card">
-          <div class="stat-num">${patientsCache.length}</div>
-          <div class="stat-label">Total de pacientes</div>
+      <div class="dash-quick-card">
+        <div class="dash-quick-illustration">${iconSpineDecor()}</div>
+        <div class="dash-quick-body">
+          <h3>Avaliação rápida</h3>
+          <p>Inicie uma nova avaliação completa de dor lombar.</p>
+          <button class="btn btn-primary" id="btn-new-patient">+ Nova avaliação</button>
         </div>
-        <div class="stat-card">
-          <div class="stat-num">${patientsCache.filter(p=>p.updatedAt > Date.now()-7*86400000).length}</div>
-          <div class="stat-label">Atualizados nos últimos 7 dias</div>
-        </div>
-        <div class="stat-card ${patientsCache.filter(p=>diasSemRetorno(p.updatedAt)>=21).length>0 ? 'stat-card-warn':''}">
-          <div class="stat-num">${patientsCache.filter(p=>diasSemRetorno(p.updatedAt)>=21).length}</div>
-          <div class="stat-label">Sem retorno há 3+ semanas</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num">${usingCloudBackend() ? 'Conta na nuvem' : (Storage.hasWindowStorage() ? 'Nuvem Claude' : 'Este navegador')}</div>
-          <div class="stat-label">Onde os dados estão salvos</div>
-        </div>
+      </div>
+
+      <div class="dash-chip-row">
+        <div class="dash-chip"><b>${patientsCache.length}</b> pacientes no total</div>
+        <div class="dash-chip"><b>${patientsCache.filter(p=>p.updatedAt > Date.now()-7*86400000).length}</b> atualizados essa semana</div>
+        <div class="dash-chip ${semRetornoCount>0 ? 'dash-chip-warn':''}"><b>${semRetornoCount}</b> sem retorno há 3+ semanas</div>
+        <div class="dash-chip">${usingCloudBackend() ? '☁️ Conta na nuvem' : (Storage.hasWindowStorage() ? '☁️ Nuvem Claude' : '💻 Este navegador')}</div>
       </div>
 
       ${usingCloudBackend() ? `
@@ -1448,12 +1529,20 @@ async function renderDashboard(){
           Login ainda não está ativo neste arquivo (backend não configurado) — os dados ficam salvos apenas neste navegador/dispositivo. Use "Exportar JSON" regularmente para manter backups. Veja o README para ativar contas de verdade.
         </div>` : '')}
 
-      <input type="text" class="dash-search" id="dash-search" placeholder="Buscar paciente por nome..." value="${esc(dashboardSearch)}">
+      <div class="dash-section-head">
+        <h3>Pacientes recentes</h3>
+        <div style="display:flex;gap:8px;">
+          <label class="btn" style="cursor:pointer;padding:8px 12px;font-size:12px;">
+            Importar JSON
+            <input type="file" id="import-file" accept="application/json" style="display:none;">
+          </label>
+        </div>
+      </div>
 
       <div class="patient-grid">
         ${filtered.length===0 ? `
           <div class="empty-note" style="padding:30px 0;text-align:center;width:100%;">
-            ${patientsCache.length===0 ? 'Nenhum paciente cadastrado ainda. Clique em "+ Novo paciente" para começar.' : 'Nenhum paciente encontrado com esse nome.'}
+            ${patientsCache.length===0 ? 'Nenhum paciente cadastrado ainda. Clique em "+ Nova avaliação" para começar.' : 'Nenhum paciente encontrado com esse nome.'}
           </div>
         ` : filtered.map(p=>`
           <div class="patient-card" data-open-patient="${p.id}">
@@ -1465,10 +1554,12 @@ async function renderDashboard(){
             </div>
             <button class="patient-card-dup" data-dup-patient="${p.id}" title="Duplicar como nova avaliação">⧉</button>
             <button class="patient-card-del" data-del-patient="${p.id}" title="Excluir paciente">✕</button>
+            <span class="patient-card-chevron">›</span>
           </div>
         `).join('')}
       </div>
     </div>
+    <button class="dash-fab" id="btn-new-patient-fab" title="Nova avaliação">+</button>
   `;
   bindDashboardEvents();
 }
@@ -1476,6 +1567,8 @@ async function renderDashboard(){
 function bindDashboardEvents(){
   const newBtn = document.getElementById('btn-new-patient');
   if(newBtn) newBtn.addEventListener('click', createNewPatient);
+  const fabBtn = document.getElementById('btn-new-patient-fab');
+  if(fabBtn) fabBtn.addEventListener('click', createNewPatient);
   const logoutBtn = document.getElementById('btn-logout');
   if(logoutBtn) logoutBtn.addEventListener('click', authSignOut);
 
@@ -2077,7 +2170,7 @@ function stepQuestionarios(){
 function stepDiagrama(){
   const types = [
     ['dor','#C0392B','Dor'],
-    ['dormencia','#2E6DA4','Dormência'],
+    ['dormencia','#0E6981','Dormência'],
     ['formigamento','#B8860B','Formigamento'],
     ['outro','#2E7D5B','Outro sintoma'],
   ];
@@ -2115,7 +2208,7 @@ const BODY_IMAGES = {
 
 function bodySvg(viewId, label){
   const pts = state.diagrama.points.filter(p=>p.view===viewId);
-  const colorOf = {dor:'#C0392B',dormencia:'#2E6DA4',formigamento:'#B8860B',outro:'#2E7D5B'};
+  const colorOf = {dor:'#C0392B',dormencia:'#0E6981',formigamento:'#B8860B',outro:'#2E7D5B'};
   return `
     <div class="diagram-view">
       <div class="lbl">${label}</div>
@@ -2468,12 +2561,12 @@ function evoChart(evos){
       <h3>Evolução da intensidade da dor ao longo do tempo</h3>
       <div class="evo-chart-wrap">
         <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
-          <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+innerH}" stroke="#E1E7ED" stroke-width="1"/>
-          <line x1="${padL}" y1="${padT+innerH}" x2="${w-padR}" y2="${padT+innerH}" stroke="#E1E7ED" stroke-width="1"/>
-          <path d="${path}" fill="none" stroke="#2E6DA4" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-          ${xy.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4" fill="#2E6DA4" stroke="#fff" stroke-width="1.5"/>`).join('')}
-          ${xy.map(p=>`<text x="${p.x}" y="${padT+innerH+18}" font-size="10" fill="#65758A" text-anchor="middle" font-family="IBM Plex Mono, monospace">${p.data ? esc(p.data.slice(5)) : ''}</text>`).join('')}
-          ${xy.map(p=>`<text x="${p.x}" y="${p.y-9}" font-size="11" fill="#122A45" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono, monospace">${p.val}</text>`).join('')}
+          <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+innerH}" stroke="#DFE7E9" stroke-width="1"/>
+          <line x1="${padL}" y1="${padT+innerH}" x2="${w-padR}" y2="${padT+innerH}" stroke="#DFE7E9" stroke-width="1"/>
+          <path d="${path}" fill="none" stroke="#0E6981" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+          ${xy.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4" fill="#0E6981" stroke="#fff" stroke-width="1.5"/>`).join('')}
+          ${xy.map(p=>`<text x="${p.x}" y="${padT+innerH+18}" font-size="10" fill="#5F7981" text-anchor="middle" font-family="IBM Plex Mono, monospace">${p.data ? esc(p.data.slice(5)) : ''}</text>`).join('')}
+          ${xy.map(p=>`<text x="${p.x}" y="${p.y-9}" font-size="11" fill="#094B61" font-weight="700" text-anchor="middle" font-family="IBM Plex Mono, monospace">${p.val}</text>`).join('')}
         </svg>
       </div>
       <p class="empty-note">Calculado automaticamente a partir do primeiro número encontrado em "Intensidade da dor hoje" de cada registro.</p>
@@ -3058,7 +3151,7 @@ function showErrorBanner(message, suffix){
   if(!el){
     el = document.createElement('div');
     el.id = 'global-error-banner';
-    el.style.cssText = 'position:fixed;bottom:16px;left:16px;right:16px;max-width:480px;margin:0 auto;background:#FDECEA;border:1px solid #F0C4BF;color:#C0392B;padding:14px 16px;border-radius:12px;font-family:Manrope,sans-serif;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.15);';
+    el.style.cssText = 'position:fixed;bottom:16px;left:16px;right:16px;max-width:480px;margin:0 auto;background:#FDECEA;border:1px solid #F0C4BF;color:#C0392B;padding:14px 16px;border-radius:12px;font-family:Inter,sans-serif;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.15);';
     document.body.appendChild(el);
   }
   el.textContent = message + ' ' + (suffix !== undefined ? suffix : '— seus dados preenchidos até agora foram salvos automaticamente. Tente recarregar a página.');
